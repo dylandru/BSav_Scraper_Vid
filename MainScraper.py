@@ -57,11 +57,10 @@ def run_scraper(reference_sheet: str, download_folder: str, max_workers: int = 5
 
 """EXAMPLE CALL"""
 
-#if __name__ == "__main__":
-#    reference_sheet = "playID/path/csv.csv"
-#    download_folder = "download/path/folder"
-#    max_workers = 10
-#    run_scraper(reference_sheet_path, download_folder, max_workers)
+#reference_sheet = "playID/path/csv.csv"
+#download_folder = "download/path/folder"
+#max_workers = 10
+#run_scraper(reference_sheet_path, download_folder, max_workers)
 
     
 	
