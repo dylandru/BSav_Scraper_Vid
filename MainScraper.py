@@ -1,66 +1,55 @@
-import requests
-from bs4 import BeautifulSoup
+from pybaseball import statcast
 import pandas as pd
-import os
+import requests
 from concurrent.futures import ThreadPoolExecutor
+import os
+from bs4 import BeautifulSoup
+from savant_video_utils import download_video, get_video_url, fetch_game_data, process_game_data, playids_for_date_range, get_video_for_play_id
 
-#Main Function to Scrape Baseball Savant Video based on CSV containing MLB Play IDs in Column ['playID'] and save to selected folder
-#Utilizes ThreadPoolExecutor to Quicken Scraping Process for Large Number of Videos - will default to 5 workers unless specified
 
-def download_video(video_url, save_path):
-	"""Chunks and saves video to folder path"""	
-    try:
-        with session.get(video_url, stream=True) as r:
-            r.raise_for_status()
-            with open(save_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-        print(f"Video downloaded to {save_path}")
-    except Exception as e:
-        print(f"Error downloading video {video_url}: {e}")
 
-def get_video_url(page_url):
-	"""Finds video within Savant Page URL"""
-    try:
-        response = session.get(page_url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        video_container = soup.find('div', class_='video-box')
-        if video_container:
-            return video_container.find('video').find('source', type='video/mp4')['src']
-    except Exception as e:
-        print(f"Error fetching video URL from {page_url}: {e}")
-    return None
+def run_statcast_pull_scraper(start_date: str, end_date: str, download_folder: str, max_workers: int = 5, team: str = None, pitch_call: str = None):
+    """Run scraper from Statcast Pull of Play IDs. Retrieves data and processes each row in parallel."""
+    session = requests.Session()
+    df = playids_for_date_range(start_date=start_date, end_date=end_date, team=team, pitch_call=pitch_call)
 
-def process_row(row, download_folder):
-	"""Utilizes given row's Play ID to fetch and download video"""
-    play_id = row['playId']
-    page_url = f"https://baseballsavant.mlb.com/sporty-videos?playId={play_id}"
-    video_url = get_video_url(page_url)
-    if video_url:
-        save_path = os.path.join(download_folder, f"{play_id}.mp4") #Specifies name of video as the Play ID
-        download_video(video_url, save_path)
+    if not df.empty and 'play_id' in df.columns:
+        os.makedirs(download_folder, exist_ok=True)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_play_id = {executor.submit(get_video_for_play_id, row['play_id'], download_folder): row for _, row in df.iterrows()}
+            for future in as_completed(future_to_play_id):
+                play_id = future_to_play_id[future]
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"Error processing Play ID {play_id['play_id']}: {str(e)}")
     else:
-        print(f"No video found for playId {play_id}")
+        print("Play ID column not in Statcast pull or DataFrame is empty")
 
-def run_scraper(reference_sheet: str, download_folder: str, max_workers: int = 5):
-	"""Main function to run scraper"""
-	session = requests.Session()
+def run_csv_pull_scraper(reference_sheet: str, download_folder: str, max_workers: int = 5):
+    """
+    Run scraper from CSV containing specified Play IDs to scrape video.
+    """
+    session = requests.Session()
     df = pd.read_csv(reference_sheet)
-    if 'playID' in df.columns:
-    	os.makedirs(download_folder, exist_ok=True) #Creates directory if specified directory does not exist
-    	with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        	for index, row in df.iterrows():
-            	executor.submit(process_row, row, download_folder)
+    if not df.empty and 'playId' in df.columns: 
+        os.makedirs(download_folder, exist_ok=True)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_play_id = {executor.submit(get_video_for_play_id, row['play_id'], download_folder): row for _, row in df.iterrows()}
+            for future in as_completed(future_to_play_id):
+                play_id = future_to_play_id[future]
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"Error processing Play ID {play_id['playId']}: {str(e)}")
     else:
-    	print("CSV does not contain column 'playID'")
-    	
+        print("playId column not in Statcast pull or DataFrame is empty")
+ 
 
-"""EXAMPLE CALL"""
+ """ EXAMPLE CALL """
+        
+#if __name__ == "__main__":
+#    download_folder = "/Users/dylandrummey/Downloads/DylanDru_GitHub/Baseball-Savant-Video-Scraper/savant_video_utils/test1/"
+#    run_statcast_pull_scraper(start_date="2023-04-01", end_date="2023-04-02", download_folder=download_folder)
 
-#reference_sheet = "playID/path/csv.csv"
-#download_folder = "download/path/folder"
-#max_workers = 10
-#run_scraper(reference_sheet_path, download_folder, max_workers)
-
-    
 	
