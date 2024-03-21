@@ -41,7 +41,6 @@ def fetch_game_data(game_pk):
 def process_game_data(game_data, pitch_call=None):
     """Process game data and filter by pitch_call if provided."""
     team_home_data = game_data.get('team_home', [])
-    
     df = pd.json_normalize(team_home_data)
     for entry in df:
         df['game_pk'] = df['game_pk']
@@ -64,7 +63,6 @@ def playids_for_date_range(start_date: str, end_date: str, team: str = None, pit
 
 def get_video_for_play_id(play_id, download_folder):
     """Process a single play ID to download the corresponding video."""
-    print(play_id)
     page_url = f"https://baseballsavant.mlb.com/sporty-videos?playId={play_id}"
     try:
         video_url = get_video_url(page_url)
