@@ -72,3 +72,4 @@ def get_video_for_play_id(play_id, download_folder):
         else:
             print(f"No video found for playId {play_id}")
     except Exception as e:
+        print("Unable to complete request.")

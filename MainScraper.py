@@ -46,10 +46,10 @@ def run_csv_pull_scraper(reference_sheet: str, download_folder: str, max_workers
         print("playId column not in Statcast pull or DataFrame is empty")
  
 
- """ EXAMPLE CALL """
+""" EXAMPLE CALL """
         
 #if __name__ == "__main__":
 #    download_folder = "/Users/dylandrummey/Downloads/DylanDru_GitHub/Baseball-Savant-Video-Scraper/savant_video_utils/test1/"
-#    run_statcast_pull_scraper(start_date="2023-04-01", end_date="2023-04-02", download_folder=download_folder)
+#    run_statcast_pull_scraper(start_date="2023-04-12", end_date="2023-04-12", download_folder=download_folder)
 
 	
