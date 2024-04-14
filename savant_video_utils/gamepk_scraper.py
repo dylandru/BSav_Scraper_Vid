@@ -61,13 +61,13 @@ def playids_for_date_range(start_date: str, end_date: str, team: str = None, pit
     return play_id_df
     
 
-def get_video_for_play_id(play_id, download_folder):
+def get_video_for_play_id(play_id, game_pk, download_folder):
     """Process a single play ID to download the corresponding video."""
     page_url = f"https://baseballsavant.mlb.com/sporty-videos?playId={play_id}"
     try:
         video_url = get_video_url(page_url)
         if video_url:
-            save_path = os.path.join(download_folder, f"{play_id}.mp4") #Video currently named for Play ID
+            save_path = os.path.join(download_folder, f"{game_pk}_{play_id}.mp4") #Video currently named for Play ID
             download_video(video_url, save_path)
         else:
             print(f"No video found for playId {play_id}")

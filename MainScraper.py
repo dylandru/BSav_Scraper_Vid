@@ -16,7 +16,7 @@ def run_statcast_pull_scraper(start_date: str, end_date: str, download_folder: s
     if not df.empty and 'play_id' in df.columns:
         os.makedirs(download_folder, exist_ok=True)
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            future_to_play_id = {executor.submit(get_video_for_play_id, row['play_id'], download_folder): row for _, row in df.iterrows()}
+            future_to_play_id = {executor.submit(get_video_for_play_id, row['play_id'], row['game_pk'], download_folder): row for _, row in df.iterrows()}
             for future in as_completed(future_to_play_id):
                 play_id = future_to_play_id[future]
                 try:
@@ -32,10 +32,10 @@ def run_csv_pull_scraper(reference_sheet: str, download_folder: str, max_workers
     """
     session = requests.Session()
     df = pd.read_csv(reference_sheet)
-    if not df.empty and 'playId' in df.columns: 
+    if not df.empty and 'playId' and 'game_pk' in df.columns: 
         os.makedirs(download_folder, exist_ok=True)
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            future_to_play_id = {executor.submit(get_video_for_play_id, row['play_id'], download_folder): row for _, row in df.iterrows()}
+            future_to_play_id = {executor.submit(get_video_for_play_id, row['playId'], row['game_pk'], download_folder): row for _, row in df.iterrows()}
             for future in as_completed(future_to_play_id):
                 play_id = future_to_play_id[future]
                 try:
@@ -48,8 +48,8 @@ def run_csv_pull_scraper(reference_sheet: str, download_folder: str, max_workers
 
 """ EXAMPLE CALL """
         
-#if __name__ == "__main__":
-#    download_folder = "/Users/dylandrummey/Downloads/DylanDru_GitHub/Baseball-Savant-Video-Scraper/savant_video_utils/test1/"
-#    run_statcast_pull_scraper(start_date="2023-04-12", end_date="2023-04-12", download_folder=download_folder)
+if __name__ == "__main__":
+    download_folder = "/Users/dylandrummey/Downloads/DylanDru_GitHub/Baseball-Savant-Video-Scraper/savant_video_utils/test1/"
+    run_statcast_pull_scraper(start_date="2023-04-12", end_date="2023-04-12", download_folder=download_folder)
 
 	
