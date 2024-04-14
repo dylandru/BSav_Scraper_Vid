@@ -1,7 +1,7 @@
 from pybaseball import statcast
 import pandas as pd
 import requests
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 from bs4 import BeautifulSoup
 from savant_video_utils import download_video, get_video_url, fetch_game_data, process_game_data, playids_for_date_range, get_video_for_play_id
