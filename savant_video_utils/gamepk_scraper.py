@@ -4,6 +4,7 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 import os
 from bs4 import BeautifulSoup
+import time
 
 session = requests.Session()
 
