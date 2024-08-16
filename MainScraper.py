@@ -14,7 +14,7 @@ def run_statcast_pull_scraper(start_date: str,
                               max_workers: int = 5, 
                               team: str = None, 
                               pitch_call: str = None,
-                              max_videos: int = None):
+                              max_videos: int = None) -> None:
     """
     Run scraper from Statcast Pull of Play IDs. Retrieves data and processes each row in parallel.
 
