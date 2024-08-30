@@ -63,7 +63,6 @@ def process_game_data(game_data, pitch_call=None):
         df['game_pk'] = df['game_pk']
     if pitch_call:
         df = df.loc[df['pitch_call'] == pitch_call]
-    print(df.columns)
     return df
 
 def playids_for_date_range(start_date: str, end_date: str, team: str = None, pitch_call: str = None):

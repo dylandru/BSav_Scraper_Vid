@@ -43,7 +43,7 @@ def run_statcast_pull_scraper(start_date: str,
 
             if max_videos is not None:
                 df = df.head(max_videos) #limits length of Play ID df to the amount of max videos if specified
-
+                
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_to_play_id = {executor.submit(get_video_for_play_id, row['play_id'], row['game_pk'], download_folder): row for _, row in df.iterrows()} #sets futures to download videos for given Play IDs 
                 for future in as_completed(future_to_play_id):
@@ -52,13 +52,15 @@ def run_statcast_pull_scraper(start_date: str,
                         future.result() #get result from future tasks
                     except Exception as e:
                         print(f"Error processing Play ID {play_id['play_id']}: {str(e)}")
+            return df
         else:
             print("Play ID column not in Statcast pull or DataFrame is empty")
+            return pd.DataFrame()
 
     except KeyboardInterrupt:
         print("Ctrl+C detected. Shutting down.")
+        return pd.DataFrame()
 
-    return df
 
 def run_csv_pull_scraper(reference_sheet: str, 
                          download_folder: str, 
@@ -100,6 +102,5 @@ def run_csv_pull_scraper(reference_sheet: str,
         
 if __name__ == "__main__":
     download_folder = "./test1/"
-    run_statcast_pull_scraper(start_date="2023-04-12", end_date="2023-04-12", download_folder=download_folder)
-
-	
+    run_statcast_pull_scraper(start_date="2023-04-12", end_date="2023-04-12", download_folder=download_folder, max_videos=5)
+    
